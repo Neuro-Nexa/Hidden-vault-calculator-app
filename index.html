@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Vault Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #121212;
+            --surface-dark: #1e1e1e;
+            --secondary-dark: #2d2d2d;
+            --accent-color: #bb86fc;
+            --accent-variant: #3700b3;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --error-color: #cf6679;
+            --success-color: #03dac6;
+            --calculator-bg: #1a1a1a;
+            --button-dark: #2a2a2a;
+            --button-light: #3a3a3a;
+            --button-accent: #4a4a4a;
+            --border-radius: 16px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background-color var(--transition-speed);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            height: 90vh;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: var(--surface-dark);
+        }
+
+        /* Password Setup Screen */
+        #setup-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 30px;
+            text-align: center;
+            height: 100%;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 30px;
+            color: var(--accent-color);
+        }
+
+        .setup-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .setup-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid var(--secondary-dark);
+            background-color: var(--secondary-dark);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all var(--transition-speed);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            text-align: left;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--primary-dark);
+        }
+
+        .btn-primary:hover, .btn-primary:active {
+            background-color: #a45cf7;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-dark);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover, .btn-secondary:active {
+            background-color: #3a3a3a;
+        }
+
+        /* Calculator Screen */
+        #calculator-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px;
+            background-color: var(--calculator-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .calculation {
+            font-size: 24px;
+            color: var(--text-secondary);
+            text-align: right;
+            min-height: 30px;
+            word-break: break-all;
+        }
+
+        .result {
+            font-size: 48px;
+            font-weight: 300;
+            text-align: right;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 15px;
+            padding: 25px;
+            background-color: var(--calculator-bg);
+            flex: 2;
+        }
+
+        .calc-btn {
+            border-radius: 16px;
+            border: none;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--text-primary);
+            background-color: var(--button-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+            aspect-ratio: 1;
+            user-select: none;
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        .operator {
+            background-color: var(--button-accent);
+            color: var(--accent-color);
+        }
+
+        .equals {
+            background-color: var(--accent-color);
+            color: var(--primary-dark);
+        }
+
+        .clear, .backspace {
+            color: var(--error-color);
+        }
+
+        .zero {
+            grid-column: span 2;
+            aspect-ratio: unset;
+        }
+
+        /* Vault Screen */
+        #vault-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .vault-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .vault-title {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .vault-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            background-color: var(--secondary-dark);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .action-btn:hover {
+            background-color: var(--button-accent);
+            transform: translateY(-2px);
+        }
+
+        .media-section {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .media-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: var(--secondary-dark);
+            aspect-ratio: 1;
+            transition: transform var(--transition-speed);
+        }
+
+        .media-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .media-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 48px;
+            color: var(--text-secondary);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(207, 102, 121, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+        }
+
+        .media-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--accent-color);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            margin-bottom: 25px;
+        }
+
+        .upload-area:hover {
+            background-color: rgba(187, 134, 252, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .change-password-section {
+            background-color: var(--secondary-dark);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .password-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--surface-dark);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .modal-btn-confirm {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .modal-btn-cancel {
+            background-color: var(--secondary-dark);
+            color: var(--text-primary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                height: 95vh;
+                max-height: 800px;
+            }
+            
+            .keypad {
+                grid-gap: 12px;
+                padding: 20px;
+            }
+            
+            .calc-btn {
+                font-size: 22px;
+                border-radius: 14px;
+            }
+            
+            .result {
+                font-size: 40px;
+            }
+            
+            .media-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Password Setup Screen -->
+        <div id="setup-screen">
+            <div class="logo">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1 class="setup-title">Secure Vault Setup</h1>
+            <p class="setup-subtitle">Secure your private vault by creating a password. This password will be used to access your hidden vault from the calculator.</p>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="input-field" placeholder="Enter password" autocomplete="new-password">
+                <div id="password-error" class="error-message">Password must be at least 6 characters</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" class="input-field" placeholder="Confirm password" autocomplete="new-password">
+                <div id="confirm-error" class="error-message">Passwords do not match</div>
+            </div>
+            
+            <button id="create-password-btn" class="btn btn-primary">
+                <i class="fas fa-lock"></i> Create Password
+            </button>
+            
+            <div id="setup-success" class="success-message">Password created successfully! Loading calculator...</div>
+        </div>
+
+        <!-- Calculator Screen -->
+        <div id="calculator-screen">
+            <div class="display">
+                <div class="calculation" id="calculation"></div>
+                <div class="result" id="result">0</div>
+            </div>
+            
+            <div class="keypad">
+                <button class="calc-btn clear" data-action="clear">C</button>
+                <button class="calc-btn backspace" data-action="backspace"><i class="fas fa-backspace"></i></button>
+                <button class="calc-btn operator" data-action="percentage">%</button>
+                <button class="calc-btn operator" data-action="divide">÷</button>
+                
+                <button class="calc-btn" data-number="7">7</button>
+                <button class="calc-btn" data-number="8">8</button>
+                <button class="calc-btn" data-number="9">9</button>
+                <button class="calc-btn operator" data-action="multiply">×</button>
+                
+                <button class="calc-btn" data-number="4">4</button>
+                <button class="calc-btn" data-number="5">5</button>
+                <button class="calc-btn" data-number="6">6</button>
+                <button class="calc-btn operator" data-action="subtract">−</button>
+                
+                <button class="calc-btn" data-number="1">1</button>
+                <button class="calc-btn" data-number="2">2</button>
+                <button class="calc-btn" data-number="3">3</button>
+                <button class="calc-btn operator" data-action="add">+</button>
+                
+                <button class="calc-btn zero" data-number="0">0</button>
+                <button class="calc-btn" data-action="decimal">.</button>
+                <button class="calc-btn equals" data-action="equals">=</button>
+            </div>
+        </div>
+
+        <!-- Vault Screen -->
+        <div id="vault-screen">
+            <div class="vault-header">
+                <h1 class="vault-title">Private Vault</h1>
+                <div class="vault-actions">
+                    <button id="back-to-calc" class="action-btn" title="Back to Calculator">
+                        <i class="fas fa-calculator"></i>
+                    </button>
+                    <button id="refresh-vault" class="action-btn" title="Refresh Media">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="upload-area" id="upload-trigger">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <div class="upload-text">Tap to import images and videos from your device</div>
+                <input type="file" id="file-input" class="file-input" accept="image/*,video/*" multiple>
+            </div>
+            
+            <div class="media-section">
+                <h3 class="section-title"><i class="fas fa-photo-video"></i> Your Media</h3>
+                <div class="media-grid" id="media-grid">
+                    <!-- Media items will be dynamically inserted here -->
+                </div>
+                <div id="empty-vault-message" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <p>Your vault is empty. Import images or videos to secure them.</p>
+                </div>
+            </div>
+            
+            <div class="change-password-section">
+                <h3 class="section-title"><i class="fas fa-key"></i> Change Password</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Update your vault password securely.</p>
+                
+                <div class="input-group">
+                    <label for="current-password">Current Password</label>
+                    <input type="password" id="current-password" class="input-field" placeholder="Enter current password">
+                    <div id="current-password-error" class="error-message"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" class="input-field" placeholder="Enter new password">
+                    <div id="new-password-error" class="error-message"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="confirm-new-password">Confirm New Password</label>
+                    <input type="password" id="confirm-new-password" class="input-field" placeholder="Confirm new password">
+                    <div id="confirm-new-password-error" class="error-message"></div>
+                </div>
+                
+                <button id="change-password-btn" class="btn btn-primary">
+                    <i class="fas fa-key"></i> Change Password
+                </button>
+                <div id="change-password-success" class="success-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content fade-in">
+            <h3 class="modal-title">Confirm Deletion</h3>
+            <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="confirm-delete" class="modal-btn modal-btn-confirm">Delete</button>
+                <button id="cancel-delete" class="modal-btn modal-btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        const AppState = {
+            currentScreen: 'setup', // 'setup', 'calculator', 'vault'
+            password: null,
+            calculation: '',
+            result: '0',
+            currentOperator: null,
+            waitingForOperand: false,
+            mediaToDelete: null,
+            db: null,
+            vaultPassword: ''
+        };
+
+        // Database initialization
+        function initDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('SecureVaultDB', 1);
+                
+                request.onerror = () => reject('Failed to open database');
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    // Create media store
+                    if (!db.objectStoreNames.contains('media')) {
+                        const mediaStore = db.createObjectStore('media', { keyPath: 'id', autoIncrement: true });
+                        mediaStore.createIndex('type', 'type', { unique: false });
+                        mediaStore.createIndex('date', 'date', { unique: false });
+                    }
+                    
+                    // Create settings store for password
+                    if (!db.objectStoreNames.contains('settings')) {
+                        db.createObjectStore('settings', { keyPath: 'key' });
+                    }
+                };
+                
+                request.onsuccess = (event) => {
+                    AppState.db = event.target.result;
+                    console.log('Database initialized');
+                    resolve();
+                };
+            });
+        }
+
+        // Password management
+        async function savePasswordToDB(password) {
+            return new Promise((resolve, reject) => {
+                const transaction = AppState.db.transaction(['settings'], 'readwrite');
+                const store = transaction.objectStore('settings');
+                const request = store.put({ key: 'password', value: password });
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject('Failed to save password');
+            });
+        }
+
+        async function getPasswordFromDB() {
+            return new Promise((resolve, reject) => {
+                const transaction = AppState.db.transaction(['settings'], 'readonly');
+                const store = transaction.objectStore('settings');
+                const request = store.get('password');
+                
+                request.onsuccess = () => {
+                    if (request.result) {
+                        resolve(request.result.value);
+                    } else {
+                        resolve(null);
+                    }
+                };
+                
+                request.onerror = () => reject('Failed to retrieve password');
+            });
+        }
+
+        // Media management
+        async function saveMediaToDB(file, type) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = (event) => {
+                    const transaction = AppState.db.transaction(['media'], 'readwrite');
+                    const store = transaction.objectStore('media');
+                    
+                    const mediaItem = {
+                        data: event.target.result,
+                        name: file.name,
+                        type: type,
+                        size: file.size,
+                        date: new Date().toISOString()
+                    };
+                    
+                    const request = store.add(mediaItem);
+                    
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject('Failed to save media');
+                };
+                
+                reader.onerror = () => reject('Failed to read file');
+                
+                if (type === 'image') {
+                    reader.readAsDataURL(file);
+                } else if (type === 'video') {
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        async function getAllMediaFromDB() {
+            return new Promise((resolve, reject) => {
+                const transaction = AppState.db.transaction(['media'], 'readonly');
+                const store = transaction.objectStore('media');
+                const request = store.getAll();
+                
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject('Failed to retrieve media');
+            });
+        }
+
+        async function deleteMediaFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = AppState.db.transaction(['media'], 'readwrite');
+                const store = transaction.objectStore('media');
+                const request = store.delete(Number(id));
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject('Failed to delete media');
+            });
+        }
+
+        // Screen management
+        function showScreen(screenName) {
+            // Hide all screens
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('calculator-screen').style.display = 'none';
+            document.getElementById('vault-screen').style.display = 'none';
+            
+            // Show requested screen
+            if (screenName === 'setup') {
+                document.getElementById('setup-screen').style.display = 'flex';
+            } else if (screenName === 'calculator') {
+                document.getElementById('calculator-screen').style.display = 'flex';
+                updateCalculatorDisplay();
+            } else if (screenName === 'vault') {
+                document.getElementById('vault-screen').style.display = 'flex';
+                loadVaultMedia();
+            }
+            
+            AppState.currentScreen = screenName;
+        }
+
+        // Password setup
+        function setupPasswordScreen() {
+            const createBtn = document.getElementById('create-password-btn');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirm-password');
+            const passwordError = document.getElementById('password-error');
+            const confirmError = document.getElementById('confirm-error');
+            const successMessage = document.getElementById('setup-success');
+            
+            createBtn.addEventListener('click', async () => {
+                const password = passwordInput.value.trim();
+                const confirmPassword = confirmInput.value.trim();
+                
+                // Reset errors
+                passwordError.style.display = 'none';
+                confirmError.style.display = 'none';
+                
+                let valid = true;
+                
+                // Validate password
+                if (password.length < 6) {
+                    passwordError.textContent = 'Password must be at least 6 characters';
+                    passwordError.style.display = 'block';
+                    valid = false;
+                }
+                
+                // Validate confirmation
+                if (password !== confirmPassword) {
+                    confirmError.textContent = 'Passwords do not match';
+                    confirmError.style.display = 'block';
+                    valid = false;
+                }
+                
+                if (valid) {
+                    // Save password to IndexedDB
+                    try {
+                        await savePasswordToDB(password);
+                        AppState.vaultPassword = password;
+                        
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        createBtn.disabled = true;
+                        
+                        // Transition to calculator after a short delay
+                        setTimeout(() => {
+                            showScreen('calculator');
+                        }, 1500);
+                    } catch (error) {
+                        alert('Failed to save password. Please try again.');
+                    }
+                }
+            });
+            
+            // Allow submission with Enter key
+            [passwordInput, confirmInput].forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        createBtn.click();
+                    }
+                });
+            });
+        }
+
+        // Calculator functionality
+        function setupCalculator() {
+            // Number buttons
+            document.querySelectorAll('[data-number]').forEach(button => {
+                button.addEventListener('click', () => {
+                    inputNumber(button.getAttribute('data-number'));
+                });
+            });
+            
+            // Operator buttons
+            document.querySelectorAll('[data-action]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const action = button.getAttribute('data-action');
+                    handleAction(action);
+                });
+            });
+            
+            // Keyboard support
+            document.addEventListener('keydown', (e) => {
+                if (AppState.currentScreen !== 'calculator') return;
+                
+                if (e.key >= '0' && e.key <= '9') {
+                    inputNumber(e.key);
+                } else if (e.key === '.') {
+                    handleAction('decimal');
+                } else if (e.key === '+') {
+                    handleAction('add');
+                } else if (e.key === '-') {
+                    handleAction('subtract');
+                } else if (e.key === '*') {
+                    handleAction('multiply');
+                } else if (e.key === '/') {
+                    e.preventDefault();
+                    handleAction('divide');
+                } else if (e.key === 'Enter' || e.key === '=') {
+                    handleAction('equals');
+                } else if (e.key === 'Escape') {
+                    handleAction('clear');
+                } else if (e.key === 'Backspace') {
+                    handleAction('backspace');
+                } else if (e.key === '%') {
+                    handleAction('percentage');
+                }
+            });
+        }
+
+        function inputNumber(number) {
+            // Check if we're trying to enter the password
+            AppState.calculation += number;
+            
+            // Check for password entry (when = is pressed after entering numbers)
+            if (AppState.calculation.length > 0) {
+                updateCalculatorDisplay();
+                
+                // Button animation feedback
+                event.target.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    event.target.style.transform = '';
+                }, 100);
+            }
+        }
+
+        function handleAction(action) {
+            switch (action) {
+                case 'clear':
+                    AppState.calculation = '';
+                    AppState.result = '0';
+                    AppState.currentOperator = null;
+                    AppState.waitingForOperand = false;
+                    break;
+                    
+                case 'backspace':
+                    if (AppState.calculation.length > 0) {
+                        AppState.calculation = AppState.calculation.slice(0, -1);
+                    }
+                    break;
+                    
+                case 'decimal':
+                    if (!AppState.calculation.includes('.')) {
+                        AppState.calculation += AppState.calculation === '' ? '0.' : '.';
+                    }
+                    break;
+                    
+                case 'add':
+                case 'subtract':
+                case 'multiply':
+                case 'divide':
+                case 'percentage':
+                    // For stealth password access, check if calculation matches password when = is pressed
+                    // We'll handle this in the equals case
+                    break;
+                    
+                case 'equals':
+                    // Check if the calculation matches the vault password
+                    if (AppState.calculation === AppState.vaultPassword) {
+                        // Password correct - transition to vault
+                        AppState.calculation = '';
+                        AppState.result = '0';
+                        showScreen('vault');
+                        return;
+                    }
+                    
+                    // Otherwise, perform normal calculation if it's a valid expression
+                    try {
+                        // Replace display operators with JS operators
+                        let expression = AppState.calculation
+                            .replace(/×/g, '*')
+                            .replace(/÷/g, '/')
+                            .replace(/%/g, '/100');
+                        
+                        // Evaluate expression
+                        if (expression.trim() !== '') {
+                            // Use Function constructor to avoid eval security issues
+                            const result = new Function('return ' + expression)();
+                            AppState.result = parseFloat(result.toFixed(10)).toString();
+                        }
+                    } catch (error) {
+                        AppState.result = 'Error';
+                    }
+                    
+                    AppState.calculation = '';
+                    break;
+                    
+                default:
+                    // For other operators, add to calculation
+                    const operatorMap = {
+                        'add': '+',
+                        'subtract': '−',
+                        'multiply': '×',
+                        'divide': '÷',
+                        'percentage': '%'
+                    };
+                    
+                    if (operatorMap[action]) {
+                        AppState.calculation += operatorMap[action];
+                    }
+                    break;
+            }
+            
+            updateCalculatorDisplay();
+            
+            // Button animation feedback
+            if (event && event.target) {
+                event.target.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    event.target.style.transform = '';
+                }, 100);
+            }
+        }
+
+        function updateCalculatorDisplay() {
+            document.getElementById('calculation').textContent = AppState.calculation || '';
+            document.getElementById('result').textContent = AppState.result;
+        }
+
+        // Vault functionality
+        function setupVault() {
+            // File upload
+            const uploadTrigger = document.getElementById('upload-trigger');
+            const fileInput = document.getElementById('file-input');
+            
+            uploadTrigger.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+                
+                for (const file of files) {
+                    const type = file.type.startsWith('image/') ? 'image' : 
+                                 file.type.startsWith('video/') ? 'video' : null;
+                    
+                    if (type) {
+                        try {
+                            await saveMediaToDB(file, type);
+                        } catch (error) {
+                            console.error('Failed to save media:', error);
+                        }
+                    }
+                }
+                
+                // Refresh media grid
+                loadVaultMedia();
+                
+                // Reset file input
+                fileInput.value = '';
+            });
+            
+            // Back to calculator button
+            document.getElementById('back-to-calc').addEventListener('click', () => {
+                showScreen('calculator');
+            });
+            
+            // Refresh vault button
+            document.getElementById('refresh-vault').addEventListener('click', () => {
+                loadVaultMedia();
+            });
+            
+            // Change password functionality
+            setupChangePassword();
+            
+            // Delete modal setup
+            setupDeleteModal();
+        }
+
+        async function loadVaultMedia() {
+            const mediaGrid = document.getElementById('media-grid');
+            const emptyMessage = document.getElementById('empty-vault-message');
+            
+            try {
+                const mediaItems = await getAllMediaFromDB();
+                
+                // Clear grid
+                mediaGrid.innerHTML = '';
+                
+                if (mediaItems.length === 0) {
+                    emptyMessage.style.display = 'block';
+                    return;
+                }
+                
+                emptyMessage.style.display = 'none';
+                
+                // Add media items to grid
+                mediaItems.forEach(item => {
+                    const mediaCard = document.createElement('div');
+                    mediaCard.className = 'media-card';
+                    mediaCard.dataset.id = item.id;
+                    
+                    let previewContent = '';
+                    
+                    if (item.type === 'image') {
+                        previewContent = `<img src="${item.data}" alt="${item.name}" class="media-preview">`;
+                    } else if (item.type === 'video') {
+                        previewContent = `
+                            <video class="media-preview" preload="metadata">
+                                <source src="${item.data}" type="video/mp4">
+                            </video>
+                            <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        `;
+                    }
+                    
+                    mediaCard.innerHTML = `
+                        ${previewContent}
+                        <button class="delete-btn" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    mediaGrid.appendChild(mediaCard);
+                    
+                    // Add click event to play videos
+                    if (item.type === 'video') {
+                        const video = mediaCard.querySelector('video');
+                        mediaCard.addEventListener('click', (e) => {
+                            if (!e.target.closest('.delete-btn')) {
+                                if (video.paused) {
+                                    video.play();
+                                } else {
+                                    video.pause();
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Add delete button event
+                    const deleteBtn = mediaCard.querySelector('.delete-btn');
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        AppState.mediaToDelete = item.id;
+                        document.getElementById('delete-modal').style.display = 'flex';
+                    });
+                });
+            } catch (error) {
+                console.error('Failed to load media:', error);
+                emptyMessage.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <p>Failed to load media. Please try refreshing.</p>
+                `;
+                emptyMessage.style.display = 'block';
+            }
+        }
+
+        function setupDeleteModal() {
+            const modal = document.getElementById('delete-modal');
+            const confirmBtn = document.getElementById('confirm-delete');
+            const cancelBtn = document.getElementById('cancel-delete');
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            confirmBtn.addEventListener('click', async () => {
+                if (AppState.mediaToDelete) {
+                    try {
+                        await deleteMediaFromDB(AppState.mediaToDelete);
+                        modal.style.display = 'none';
+                        loadVaultMedia();
+                    } catch (error) {
+                        alert('Failed to delete media. Please try again.');
+                    }
+                }
+            });
+        }
+
+        function setupChangePassword() {
+            const changeBtn = document.getElementById('change-password-btn');
+            const currentInput = document.getElementById('current-password');
+            const newInput = document.getElementById('new-password');
+            const confirmInput = document.getElementById('confirm-new-password');
+            const currentError = document.getElementById('current-password-error');
+            const newError = document.getElementById('new-password-error');
+            const confirmError = document.getElementById('confirm-new-password-error');
+            const successMessage = document.getElementById('change-password-success');
+            
+            changeBtn.addEventListener('click', async () => {
+                const currentPassword = currentInput.value.trim();
+                const newPassword = newInput.value.trim();
+                const confirmPassword = confirmInput.value.trim();
+                
+                // Reset messages
+                currentError.style.display = 'none';
+                newError.style.display = 'none';
+                confirmError.style.display = 'none';
+                successMessage.style.display = 'none';
+                
+                let valid = true;
+                
+                // Validate current password
+                if (currentPassword !== AppState.vaultPassword) {
+                    currentError.textContent = 'Current password is incorrect';
+                    currentError.style.display = 'block';
+                    valid = false;
+                }
+                
+                // Validate new password
+                if (newPassword.length < 6) {
+                    newError.textContent = 'New password must be at least 6 characters';
+                    newError.style.display = 'block';
+                    valid = false;
+                }
+                
+                // Validate confirmation
+                if (newPassword !== confirmPassword) {
+                    confirmError.textContent = 'Passwords do not match';
+                    confirmError.style.display = 'block';
+                    valid = false;
+                }
+                
+                if (valid) {
+                    try {
+                        await savePasswordToDB(newPassword);
+                        AppState.vaultPassword = newPassword;
+                        
+                        // Show success message
+                        successMessage.textContent = 'Password changed successfully!';
+                        successMessage.style.display = 'block';
+                        
+                        // Clear inputs
+                        currentInput.value = '';
+                        newInput.value = '';
+                        confirmInput.value = '';
+                        
+                        // Hide success message after 3 seconds
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 3000);
+                    } catch (error) {
+                        alert('Failed to change password. Please try again.');
+                    }
+                }
+            });
+        }
+
+        // Initialize the app
+        async function initApp() {
+            try {
+                // Initialize database
+                await initDatabase();
+                
+                // Check if password already exists
+                const savedPassword = await getPasswordFromDB();
+                
+                if (savedPassword) {
+                    // Password exists, go directly to calculator
+                    AppState.vaultPassword = savedPassword;
+                    showScreen('calculator');
+                } else {
+                    // No password, show setup screen
+                    showScreen('setup');
+                }
+                
+                // Setup screens
+                setupPasswordScreen();
+                setupCalculator();
+                setupVault();
+                
+                console.log('App initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+                alert('Failed to initialize application. Please refresh the page.');
+            }
+        }
+
+        // Start the app when the page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
